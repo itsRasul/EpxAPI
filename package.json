@@ -1,0 +1,12 @@
+{
+  "name": "exp",
+  "version": "1.0.0",
+  "description": "users can share their experience with each other...",
+  "main": "server",
+  "scripts": {
+    "start": "nodemon server.js",
+    "start:prod": "NODE_ENV nodemon server.js"
+  },
+  "author": "rasul",
+  "license": "ISC"
+}
