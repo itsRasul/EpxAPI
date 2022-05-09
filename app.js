@@ -15,7 +15,7 @@ app.use('/api/v1/exps', expRouter);
 app.use('/api/v1/users', userRouter);
 
 // error 404 in case we didn't find any route
-app.all('*', () => {
+app.all('*', (req, res, next) => {
   const err = new AppError(`i can't find this URL: ${req.originalUrl}`, 404);
   next(err);
 });

@@ -70,17 +70,6 @@ userSchema.pre('save', async function (next) {
 
   next();
 });
-// hash password when user updates his password
-userSchema.pre(/^findOneAnd/, async function (next) {
-  const user = await this.findOne();
-
-  // check if user.password is modified or not, if it's modified so hash password, if it's not modified don't hash
-  if (!user.isModified('password')) return next();
-
-  user.password = await bcrypt.hash(user.password, 12);
-
-  next();
-});
 
 const User = mongoose.model('User', userSchema);
 
