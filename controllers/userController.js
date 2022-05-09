@@ -149,6 +149,12 @@ exports.updateUserPassword = catchAsync(async (req, res, next) => {
     throw new AppError('user is not exist!', 404);
   }
 
+  // to avoiding one bug in pre middleware: we should avoid user to save a newPassword that is the same current password
+  if (await user.comparePassword(password, user.password)) {
+    // pre password and new password are the same, we don't wannna it.
+    throw new AppError('please use a new password which you have not used before!', 400);
+  }
+
   user.password = password;
   user.passwordConfirm = passwordConfirm;
   await user.save();
