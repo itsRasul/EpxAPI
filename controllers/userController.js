@@ -82,6 +82,8 @@ exports.createUser = catchAsync(async (req, res, next) => {
     throw new AppError('user is not created successfully, something went wrong!', 400);
   }
 
+  newUser.password = undefined;
+
   res.status(201).json({
     status: 'success',
     message: 'user is created successfully!',
