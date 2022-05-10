@@ -1,11 +1,21 @@
+const APIFeature = require('../utils/APIFeature');
 const Exp = require('../models/expModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
 exports.getAllExp = catchAsync(async (req, res, next) => {
   // get all exps
+  const feature = new APIFeature(Exp.find(), req.query).filter().sort().paginate().limit().fields();
 
-  const exps = res.status(200).send('this is get All Exp');
+  const exps = await feature.query;
+
+  res.status(200).json({
+    status: 'success',
+    results: exps.length,
+    data: {
+      exps,
+    },
+  });
 });
 
 exports.getExp = catchAsync(async (req, res, next) => {
@@ -59,8 +69,8 @@ exports.updateExp = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { experience, category } = req.body;
   const data = {
-    experience: req.body.experience,
-    category: req.body.category,
+    experience,
+    category,
   };
 
   const updatedExp = await Exp.findOneAndUpdate({ _id: id }, data);

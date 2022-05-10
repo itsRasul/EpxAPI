@@ -71,10 +71,18 @@ userSchema.pre('save', async function (next) {
 
   next();
 });
-
+// in instance method ,this points to currentDoc, and instance methods are available in intance of model (Documents)
 userSchema.methods.comparePassword = async (plainPass, hashedPass) =>
   await bcrypt.compare(plainPass, hashedPass);
 
+userSchema.methods.changedPasswordAfterTokenIssued = function (JWTIssuedAtTimeStamp) {
+  if (!this.passwordChangedAt) {
+    // user has never changed his password, so token always be valid in this step
+    return false;
+  }
+  const passwordChangedAtTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000);
+  return passwordChangedAtTimeStamp > JWTIssuedAtTimeStamp;
+};
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;

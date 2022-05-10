@@ -1,3 +1,4 @@
+const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
@@ -66,4 +67,43 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   createAndSendToken(user, res, 200, 'you are logged in successfully!');
+});
+// the second part of authentication (after login and creating token and send it to user client) is protect middleware
+// where we verify the token has recieved in protected route
+exports.protect = catchAsync(async (req, res, next) => {
+  // 1) check if token is exist and it's there
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookie.jwt) {
+    token = req.cookie.jwt;
+  }
+
+  if (!token) {
+    throw new AppError('you have not logged in, please log in and try again!', 401);
+  }
+
+  // 2) check if token is valid
+  // if it's valid the resolved value (deacodedToken) will be payload of jwt token
+  // which is contains { id: 584dsd654165, iat: 13999494594, exp: 13999494594 }
+  // and if it's not valid throws an error that end function executioan
+  const deacodedToken = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // 3) check if user is still exist
+  const user = await User.findById(deacodedToken.id).select('+password');
+
+  if (!user) {
+    throw new AppError('user recently deleted his account, please login again!', 401);
+  }
+  // 4) check if user hasn't change his password after the token was issued
+  // beacuse for example a user's token has stolen by a hacker and the user to prevent it changes his password
+  // so we should invalid the pre token
+
+  if (user.changedPasswordAfterTokenIssued(deacodedToken.iat)) {
+    throw new AppError('user recently changed password, please login again!', 401);
+  }
+
+  // everything is Ok, take user to next middleware
+  req.user = user;
+  next();
 });

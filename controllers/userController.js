@@ -145,12 +145,11 @@ exports.updateUserPassword = catchAsync(async (req, res, next) => {
     throw new AppError('please enter password and password Confirm!');
   }
 
-  const user = await User.findById(id);
+  const user = await User.findById(id).select('+password');
 
   if (!user) {
     throw new AppError('user is not exist!', 404);
   }
-
   // to avoiding one bug in pre middleware: we should avoid user to save a newPassword that is the same current password
   if (await user.comparePassword(password, user.password)) {
     // pre password and new password are the same, we don't wannna it.
@@ -159,6 +158,7 @@ exports.updateUserPassword = catchAsync(async (req, res, next) => {
 
   user.password = password;
   user.passwordConfirm = passwordConfirm;
+  user.passwordChangedAt = Date.now();
   await user.save();
 
   res.status(200).json({
