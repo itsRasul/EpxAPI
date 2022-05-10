@@ -6,7 +6,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(authController.protect, expController.getAllExp)
+  .get(authController.protect, authController.reStrictTo('admin'), expController.getAllExp)
   .post(expController.createExp);
 
 router

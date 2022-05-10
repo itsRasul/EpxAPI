@@ -107,3 +107,15 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = user;
   next();
 });
+
+exports.reStrictTo = function (...roles) {
+  // ...roles will be like: ['admin', 'user']
+  // if users's role is the same go to next middleware
+  // if user's role is not properiate throw an Error
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError('you are forbidden to access this route!', 403));
+    }
+    next();
+  };
+};
