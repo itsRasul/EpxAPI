@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
+const { captureRejectionSymbol } = require('events');
 
 const createAndSendToken = (user, res, statusCode, message) => {
   // so user is exist and password is correct, now it's time to create new token and send it back to the client!
@@ -37,6 +38,18 @@ const createAndSendToken = (user, res, statusCode, message) => {
       user,
     },
   });
+};
+
+const filterField = (body, ...data) => {
+  let newObj = {};
+  // iterate in body, take every field into newObj if it's in data array
+  // this returns a object that has only fields which is in ...data array
+  Object.keys(body).forEach(field => {
+    if (data.includes(field)) {
+      newObj[field] = body[field];
+    }
+  });
+  return newObj;
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
@@ -75,8 +88,8 @@ exports.protect = catchAsync(async (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookie.jwt) {
-    token = req.cookie.jwt;
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
   if (!token) {
@@ -119,3 +132,69 @@ exports.reStrictTo = function (...roles) {
     next();
   };
 };
+
+exports.updateMe = catchAsync(async (req, res, next) => {
+  // this route is for user can update his non-sensitive data by himself
+  if (req.body.password || req.body.passwordConfirm) {
+    throw new AppError(
+      `you can't update your password in this route, if you wanna change your password please go in this route: /users/:id/updateMyPassword`
+    );
+  }
+
+  const filteredFields = filterField(req.body, 'name', 'email', 'userName');
+  // top code and bottom code are doing exact same thing
+  // const data = {
+  //   name: req.body.name || req.user.name,
+  //   email: req.body.email || req.user.email,
+  //   userName: req.body.userName || req.user.userName,
+  // };
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredFields, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'user is updated successfully!',
+    data: {
+      user: updatedUser,
+    },
+  });
+});
+
+exports.updateMyPassword = catchAsync(async (req, res, next) => {
+  // this route is for user can update own password (sensitive data)
+  if (!req.body.newPassword || !req.body.newPasswordConfirm || !req.body.currentPassword) {
+    throw new AppError(
+      'please enter your newPassword and newPasswordConfirm and currentPassword!',
+      400
+    );
+  }
+
+  const { newPassword, newPasswordConfirm, currentPassword } = req.body;
+  const user = await User.findById(req.user.id).select('+password');
+
+  if (!user) {
+    throw new AppError('user is not exist!', 404);
+  }
+
+  // chack if current password is the same password which is in DB
+  if (!(await user.comparePassword(currentPassword, user.password))) {
+    throw new AppError('currentPassword is wrong!', 400);
+  }
+
+  // if code is here, so current password is correct, so save newPassword
+  user.password = newPassword;
+  user.passwordConfirm = newPasswordConfirm;
+  user.passwordChangedAt = Date.now();
+  await user.save();
+
+  user.password = undefined;
+  res.status(200).json({
+    status: 'success',
+    message: 'your password is updated successfully!',
+    data: {
+      user,
+    },
+  });
+});

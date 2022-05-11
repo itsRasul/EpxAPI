@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const expRouter = require('./routes/expRoutes');
 const userRouter = require('./routes/userRoutes');
 const errorController = require('./controllers/errorController');
@@ -10,6 +11,8 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 // to parse json body
 app.use(bodyParser.json());
+// to parse cookies comes from client
+app.use(cookieParser());
 
 app.use('/api/v1/exps', expRouter);
 app.use('/api/v1/users', userRouter);
