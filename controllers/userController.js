@@ -169,3 +169,19 @@ exports.updateUserPassword = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getMe = catchAsync(async (req, res, next) => {
+  // retrun user data except password
+  const user = await User.findById(req.user.id).select(
+    '-password -passwordConfirm -passwordChangedAt -resetPassword -resetPasswordExpires -__V'
+  );
+
+  if (!user) throw new AppError('user is not exist!', 404);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user,
+    },
+  });
+});

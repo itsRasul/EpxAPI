@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
-const { captureRejectionSymbol } = require('events');
+const email = require('../utils/email');
 
 const createAndSendToken = (user, res, statusCode, message) => {
   // so user is exist and password is correct, now it's time to create new token and send it back to the client!
@@ -196,5 +196,47 @@ exports.updateMyPassword = catchAsync(async (req, res, next) => {
     data: {
       user,
     },
+  });
+});
+
+exports.logout = catchAsync(async (req, res, next) => {
+  if (req.cookies.jwt) {
+    // user is log in and he wants to logout
+    res.status(200).clearCookie('jwt').json({
+      status: 'success',
+      message: 'you are logged out successfully!',
+    });
+  } else {
+    res.status(400).json({
+      status: 'fail',
+      message: 'you are logged out already!',
+    });
+  }
+});
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  if (!req.body.email) {
+    throw new AppError('please enter your email!');
+  }
+
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    throw new AppError('user is not exist with this email!', 404);
+  }
+
+  const resetPasswordToken = user.createResetPasswordToken();
+  await user.save({ validateBeforeSave: false });
+  const options = {
+    to: user.email,
+    subject: 'reset password (valid for 10 minutes)',
+    text: `please send a post request to http://127.0.0.1:3000/api/v1/users/${resetPasswordToken}`,
+  };
+
+  await email(options);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'we send token to your email, check it!',
   });
 });
