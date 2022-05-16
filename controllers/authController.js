@@ -4,6 +4,7 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const email = require('../utils/email');
+const crypto = require('crypto');
 
 const createAndSendToken = (user, res, statusCode, message) => {
   // so user is exist and password is correct, now it's time to create new token and send it back to the client!
@@ -230,7 +231,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const options = {
     to: user.email,
     subject: 'reset password (valid for 10 minutes)',
-    text: `please send a post request to http://127.0.0.1:3000/api/v1/users/${resetPasswordToken}`,
+    text: `please send a patch request to http://127.0.0.1:3000/api/v1/users/resetPassword/${resetPasswordToken}`,
   };
 
   await email(options);
@@ -239,4 +240,36 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     status: 'success',
     message: 'we send token to your email, check it!',
   });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // user send a post request to {{url}}/../resetPassword/:token with new password and passwordConfirm
+  // we get the token
+  // compare the plain token to ecrypted one in DB of the userDoc
+  // if token was correct => set new password and confirmPassword
+  // if token wasn't correct => throw an Error
+  const { token } = req.params;
+  const { password, passwordConfirm } = req.body;
+
+  if (!password || !passwordConfirm) {
+    throw new AppError('please enter your new password and passwordConfirm!', 400);
+  }
+  // hash the plain token and find the user by hashedToken
+  const resetPasswordTokenHashed = crypto.createHash('sha256').update(token).digest('hex');
+  const user = await User.findOne({
+    resetPassword: resetPasswordTokenHashed,
+    resetPasswordExpires: { $gt: Date.now() },
+  }).select('+password');
+
+  if (!user) {
+    throw new AppError('token is not correct or just has been expired!', 404);
+  }
+
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+  user.resetPassword = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+
+  createAndSendToken(user, res, 200, 'password has been updated successfully!');
 });
