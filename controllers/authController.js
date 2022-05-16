@@ -273,3 +273,18 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   createAndSendToken(user, res, 200, 'password has been updated successfully!');
 });
+
+exports.deleteMe = catchAsync(async (req, res, next) => {
+  const { id } = req.user;
+  console.log(id);
+  const removedUser = await User.findOneAndDelete({ _id: id });
+
+  if (!removedUser) {
+    throw new AppError('user is not exist!', 404);
+  }
+
+  res.status(204).json({
+    status: 'success',
+    message: 'user has been deleted successfully!',
+  });
+});
