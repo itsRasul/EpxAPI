@@ -24,6 +24,9 @@ exports.getExp = catchAsync(async (req, res, next) => {
   if (!exp) {
     throw new AppError('experience is not found!', 404);
   }
+
+  exp.views = exp.views + 1;
+  await exp.save();
   res.status(200).json({
     status: 'success',
     message: 'experiece found successfully!',
