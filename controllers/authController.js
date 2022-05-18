@@ -41,18 +41,6 @@ const createAndSendToken = (user, res, statusCode, message) => {
   });
 };
 
-const filterField = (body, ...data) => {
-  let newObj = {};
-  // iterate in body, take every field into newObj if it's in data array
-  // this returns a object that has only fields which is in ...data array
-  Object.keys(body).forEach(field => {
-    if (data.includes(field)) {
-      newObj[field] = body[field];
-    }
-  });
-  return newObj;
-};
-
 exports.signup = catchAsync(async (req, res, next) => {
   const data = {
     name: req.body.name,
@@ -133,35 +121,6 @@ exports.reStrictTo = function (...roles) {
     next();
   };
 };
-
-exports.updateMe = catchAsync(async (req, res, next) => {
-  // this route is for user can update his non-sensitive data by himself
-  if (req.body.password || req.body.passwordConfirm) {
-    throw new AppError(
-      `you can't update your password in this route, if you wanna change your password please go in this route: /users/:id/updateMyPassword`
-    );
-  }
-
-  const filteredFields = filterField(req.body, 'name', 'email', 'userName');
-  // top code and bottom code are doing exact same thing
-  // const data = {
-  //   name: req.body.name || req.user.name,
-  //   email: req.body.email || req.user.email,
-  //   userName: req.body.userName || req.user.userName,
-  // };
-  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredFields, {
-    new: true,
-    runValidators: true,
-  });
-
-  res.status(200).json({
-    status: 'success',
-    message: 'user is updated successfully!',
-    data: {
-      user: updatedUser,
-    },
-  });
-});
 
 exports.updateMyPassword = catchAsync(async (req, res, next) => {
   // this route is for user can update own password (sensitive data)

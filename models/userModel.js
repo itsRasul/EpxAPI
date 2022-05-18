@@ -3,6 +3,20 @@ const validator = require('validator');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
+// validations:
+// in mongoose validation when we execute Doc.save() and model.create() all the validation would be runned for all fields
+// but when we execute Model.findByIdAndUpdate nothing of validation would be run
+// if we turn on runValidators: true just updated fields would be validated
+// for example:
+// user.save() => all validation for all field would be validated
+// User.findByIdAndUpdate() => doesn't validate
+// User.findByIdAndUpdate({ runValidators: true }) => just updated field would be validated
+
+// point:
+// custome validators (the validators we defiene in schema) just works well in Doc.save() or Model.create() (not in .update() or ...)
+// actully custome validators run in .update() but 'this' keyword points to global object but in .save() and .create()
+// 'this' keyword points to current Document.. because of that in custome validators we should always check that 'this' points
+// to currect doc not global obj in order to not giving Error
 const userSchema = new mongoose.Schema({
   name: {
     type: String,

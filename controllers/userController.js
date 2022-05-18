@@ -1,7 +1,75 @@
+const multer = require('multer');
+const sharp = require('sharp');
 const APIFeature = require('../utils/APIFeature');
 const User = require('../models/userModel');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
+
+const filterField = (body, ...data) => {
+  let newObj = {};
+  // iterate in body, take every field into newObj if it's in data array
+  // this returns a object that has only fields which is in ...data array
+  Object.keys(body).forEach(field => {
+    if (data.includes(field)) {
+      newObj[field] = body[field];
+    }
+  });
+  return newObj;
+};
+
+const update = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.split('/')[0] == 'image') {
+      cb(null, true);
+    } else {
+      cb(new AppError('file must only be an image!', 400), false);
+    }
+  },
+});
+
+exports.updateUserPhoto = update.single('photo');
+
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
+  const extension = req.file.mimetype.split('/')[1];
+  req.file.fileName = `user-${req.user.id}-${Date.now()}.${extension}`;
+  await sharp(req.file.buffer)
+    .resize(500, 500)
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.file.fileName}`);
+  next();
+});
+
+exports.updateMe = catchAsync(async (req, res, next) => {
+  // this route is for user can update his non-sensitive data by himself
+  if (req.body.password || req.body.passwordConfirm) {
+    throw new AppError(
+      `you can't update your password in this route, if you wanna change your password please go in this route: /users/:id/updateMyPassword`
+    );
+  }
+
+  const filteredFields = filterField(req.body, 'name', 'email', 'userName');
+  if (req.file) filteredFields.photo = req.file.fileName;
+  // top code and bottom code are doing exact same thing
+  // const data = {
+  //   name: req.body.name || req.user.name,
+  //   email: req.body.email || req.user.email,
+  //   userName: req.body.userName || req.user.userName,
+  // };
+
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredFields, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'user is updated successfully!',
+    data: {
+      user: updatedUser,
+    },
+  });
+});
 
 exports.getUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;

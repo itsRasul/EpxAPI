@@ -21,6 +21,9 @@ const handleJWTError = () => new AppError('The Token is Invalid, please log in a
 
 const handleExpiredToken = () => new AppError('The Token is expired, please login again!', 401);
 
+const limitUnexpectedFileError = () =>
+  new AppError('you have uploaded more than number we expected!', 400);
+
 const sendErrorDev = (err, req, res) => {
   // WE ARE IN API
   if (req.originalUrl.startsWith('/api')) {
@@ -108,6 +111,8 @@ module.exports = (err, req, res, next) => {
     else if (err.name === 'JsonWebTokenError') error = handleJWTError();
     // when Token is Expired jwt.verify func throw an Error with name is TokenExpiredError
     else if (err.name === 'TokenExpiredError') error = handleExpiredToken();
+    // if user upload multiple files and we have a limit for that, throws an error that err.code is LIMIT_UNEXPECTED_FILE
+    else if (err.code === 'LIMIT_UNEXPECTED_FILE') error = limitUnexpectedFileError();
 
     sendErrorProd(error, req, res);
   }

@@ -7,7 +7,14 @@ const router = express();
 router.route('/signup').post(authController.signup);
 router.route('/login').post(authController.login);
 router.route('/logout').post(authController.protect, authController.login);
-router.route('/updateMe').patch(authController.protect, authController.updateMe);
+router
+  .route('/updateMe')
+  .patch(
+    authController.protect,
+    userController.updateUserPhoto,
+    userController.resizeUserPhoto,
+    userController.updateMe
+  );
 router.route('/updateMyPassword').patch(authController.protect, authController.updateMyPassword);
 router.route('/forgotPassword').post(authController.forgotPassword);
 router.route('/resetPassword/:token').patch(authController.resetPassword);
