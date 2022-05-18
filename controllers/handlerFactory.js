@@ -2,8 +2,9 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const APIFeature = require('../utils/APIFeature');
 
-exports.getOne = (Model, populateOption) =>
+exports.getOne = (Model, ...populateOption) =>
   catchAsync(async (req, res, next) => {
+    console.log(populateOption);
     let query = Model.findById(req.params.id);
 
     if (populateOption) {
@@ -13,7 +14,7 @@ exports.getOne = (Model, populateOption) =>
     const doc = await query;
 
     if (!doc) {
-      throw new AppError('This document is not exist', 404);
+      throw new AppError('document is not exist', 404);
     }
 
     res.status(200).json({
@@ -43,7 +44,7 @@ exports.getAll = Model =>
   });
 
 exports.createOne = Model =>
-  (exports.createExp = catchAsync(async (req, res, next) => {
+  catchAsync(async (req, res, next) => {
     const doc = await Model.create(req.body);
 
     if (!doc) {
@@ -57,7 +58,7 @@ exports.createOne = Model =>
         data: doc,
       },
     });
-  }));
+  });
 exports.updateOne = Model =>
   catchAsync(async (req, res, next) => {
     const { id } = req.params;
@@ -78,7 +79,7 @@ exports.deleteOne = Model =>
     const doc = await Model.findByIdAndDelete(id);
 
     if (!doc) {
-      throw new AppError(`experience doesn't exist, or already has been deleted!`);
+      throw new AppError(`document doesn't exist, or already has been deleted!`);
     }
 
     res.status(204).json({
