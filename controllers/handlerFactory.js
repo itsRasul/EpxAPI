@@ -63,7 +63,15 @@ exports.updateOne = Model =>
   catchAsync(async (req, res, next) => {
     const { id } = req.params;
 
-    const doc = await Model.findOneAndUpdate({ _id: id }, req.body);
+    const doc = await Model.findOneAndUpdate({ _id: id }, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!doc) {
+      throw new AppError('doc is not exist!', 404);
+    }
+
     res.status(200).json({
       status: 'success',
       message: 'document is updated successfully!',
@@ -79,7 +87,7 @@ exports.deleteOne = Model =>
     const doc = await Model.findByIdAndDelete(id);
 
     if (!doc) {
-      throw new AppError(`document doesn't exist, or already has been deleted!`);
+      throw new AppError(`document doesn't exist, or already has been deleted!`, 404);
     }
 
     res.status(204).json({

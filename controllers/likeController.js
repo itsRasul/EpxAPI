@@ -5,10 +5,10 @@ const handlerFactory = require('./handlerFactory');
 
 exports.deleteMyLike = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const like = await Like.findByIdAndDelete({ _id: id, user: req.user.id });
+  const like = await Like.findOneAndDelete({ _id: id, user: req.user.id });
 
   if (!like) {
-    throw new AppError('like is not exist! or the like is not for you!', 404);
+    throw new AppError('there is no like on this experience by you!', 404);
   }
 
   res.status(204).json({

@@ -37,6 +37,7 @@ exports.getExp = catchAsync(async (req, res, next) => {
 });
 
 exports.createExp = catchAsync(async (req, res, next) => {
+  req.body.user = req.user.id;
   const exp = await Exp.create(req.body);
 
   if (!exp) {
