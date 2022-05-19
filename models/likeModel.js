@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Exp = require('./expModel');
-const AppError = require('../utils/AppError');
 
 const likeSchema = new mongoose.Schema({
   user: {
@@ -12,6 +11,10 @@ const likeSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: 'Exp',
     required: [true, 'like must belongs to a experience!'],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
   },
 });
 

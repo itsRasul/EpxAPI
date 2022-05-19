@@ -54,6 +54,7 @@ exports.createExp = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteExp = catchAsync(async (req, res, next) => {
+  // this controller is for admin
   const { id } = req.params;
   const removedExp = await Exp.findByIdAndDelete(id);
   if (!removedExp) {
@@ -83,6 +84,48 @@ exports.updateExp = catchAsync(async (req, res, next) => {
     message: '',
     data: {
       updatedExp,
+    },
+  });
+});
+
+exports.deleteMyExp = catchAsync(async (req, res, next) => {
+  // this controller is for all users
+  const userId = req.user.id;
+  const { id: expId } = req.params;
+
+  const removedExp = await Exp.findOneAndDelete({ _id: expId, user: userId });
+
+  if (!removedExp) {
+    throw new AppError('there is no experience created with this id by you!', 404);
+  }
+
+  res.status(204).json({
+    status: 'success',
+    message: 'experience is deleted successfully!',
+    data: {
+      data: removedExp,
+    },
+  });
+});
+
+exports.updateMyExp = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const { id: expId } = req.params;
+
+  const updatedExp = await Exp.findOneAndUpdate({ _id: expId, user: userId }, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!updatedExp) {
+    throw new AppError('there is no experience created with this id by you!', 404);
+  }
+
+  res.status(200).json({
+    status: 'success',
+    message: 'your experience has been updated successfully!',
+    data: {
+      data: updatedExp,
     },
   });
 });

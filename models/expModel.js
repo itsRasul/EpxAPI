@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const expSchema = new mongoose.Schema(
   {
+    title: {
+      type: String,
+      maxlength: [25, 'title must be less than 25 character'],
+      required: [true, 'experience must have a title'],
+    },
     experience: {
       type: String,
       required: [true, 'experience must have a experience field!'],
@@ -18,6 +23,10 @@ const expSchema = new mongoose.Schema(
         ref: 'Category',
       },
     ],
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
     views: {
       type: Number,
       default: 0,
@@ -51,6 +60,14 @@ expSchema.virtual('likes', {
 });
 */
 // ***************
+
+expSchema.pre(/^findOne/, function (next) {
+  this.populate({
+    path: 'user',
+    select: 'userName photo',
+  });
+  next();
+});
 
 const Exp = mongoose.model('Exp', expSchema);
 

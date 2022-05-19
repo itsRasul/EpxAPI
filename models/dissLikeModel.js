@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Exp = require('../models/expModel');
-const AppError = require('../utils/AppError');
 
 const dissLikeSchema = new mongoose.Schema(
   {
@@ -13,6 +12,10 @@ const dissLikeSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: 'Exp',
       required: [true, 'diss like must belongs to a experience!'],
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
     },
   },
   {

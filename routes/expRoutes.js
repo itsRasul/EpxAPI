@@ -1,6 +1,8 @@
 const express = require('express');
 const expController = require('../controllers/expControllers');
 const authController = require('../controllers/authController');
+const likeRouter = require('./likeRotes');
+const dissLikeRouter = require('./dissLikeRoutes');
 
 const router = express.Router();
 
@@ -15,4 +17,9 @@ router
   .patch(authController.protect, authController.reStrictTo('admin'), expController.updateExp)
   .delete(authController.protect, authController.reStrictTo('admin'), expController.deleteExp);
 
+router.route('/:id/deleteMyExp').delete(authController.protect, expController.deleteMyExp);
+router.route('/:id/updateMyExp').patch(authController.protect, expController.updateMyExp);
+
+router.use('/:expId/likes', likeRouter);
+router.use('/:expId/disslikes', dissLikeRouter);
 module.exports = router;
