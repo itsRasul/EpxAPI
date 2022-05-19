@@ -253,3 +253,35 @@ exports.getMe = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+// test uploading video
+
+// const uploadVideoMulter = multer({
+//   storage: multer.diskStorage({
+//     // this func specify where files are gonna be stored
+//     destination: (req, file, cb) => {
+//       // cb stands for callback, it's somthing like next() in express, if there is an error put that error into the first argument, otherhands put null
+//       // in second argument put actully value, and when cb is called, it's gonna to run next func
+//       cb(null, 'public/videos');
+//     },
+//     filename: (req, file, cb) => {
+//       const extension = file.mimetype.split('/')[1]; // returns passvand file ex) jpeg, png
+//       // we wanna name the file like this => user-userId-timeStamp.extension => user-68f4sd1f68sd-35468516185.jpeg
+//       cb(null, `user-${req.user.id}-${Date.now()}.${extension}`);
+//     },
+//   }),
+//   fileFilter: (req, file, cb) => {
+//     console.log({ file });
+//     if (file.mimetype.split('/')[0] == 'video') {
+//       cb(null, true);
+//     } else {
+//       cb(new AppError('please upload a video', 400), false);
+//     }
+//   },
+// });
+
+// exports.uploadVideo = uploadVideoMulter.single('videos');
+
+// exports.uploadVideoHandler = (req, res, next) => {
+//   res.send('upload was success!');
+// };

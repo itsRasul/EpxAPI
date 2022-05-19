@@ -28,13 +28,14 @@ class APIFeature {
     return this;
   }
   sort() {
+    let sortBy;
     if (this.queryString.sort) {
       // now sort is: price,createdAt
       // we wanna turn it to: price createdAt
-      var sortBy = this.queryString.sort.split(',').join(' ');
+      sortBy = this.queryString.sort.split(',').join(' ');
     } else {
       // default sort
-      var sortBy = 'createdAt';
+      sortBy = '-createdAt';
     }
 
     this.query = this.query.sort(sortBy);
@@ -64,12 +65,13 @@ class APIFeature {
   }
 
   fields() {
+    let fields;
     if (this.queryString.fields) {
       // fields: name,email
       // we wanna make it: name email
-      var fields = this.queryString.fields.split(',').join(' ');
+      fields = this.queryString.fields.split(',').join(' ');
     } else {
-      var fields = '-__v';
+      fields = '-__v';
     }
     this.query = this.query.select(fields);
 

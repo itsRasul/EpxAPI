@@ -2,15 +2,11 @@ const express = require('express');
 const dissLikeController = require('../controllers/dissLikeController');
 const authController = require('../controllers/authController');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router
   .route('/')
-  .get(
-    authController.protect,
-    authController.reStrictTo('admin'),
-    dissLikeController.getAllDissLikes
-  )
+  .get(dissLikeController.getAllDissLikes)
   .post(authController.protect, dissLikeController.createDissLike);
 
 router

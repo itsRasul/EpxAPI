@@ -6,7 +6,8 @@ const handleCastErrorDB = err => {
 };
 
 const handleValidationErrorDB = err => {
-  const { message } = err;
+  let { message } = err;
+  message = message.split(':')[2] ? message.split(':')[2] : message;
   return new AppError(message, 400);
 };
 

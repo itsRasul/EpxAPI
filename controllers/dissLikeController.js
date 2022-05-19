@@ -20,8 +20,19 @@ exports.deleteMyDissLike = catchAsync(async (req, res, next) => {
 });
 
 exports.createDissLike = catchAsync(async (req, res, next) => {
-  req.body.user = req.user.id;
-  const doc = await DissLike.create(req.body);
+  const data = {
+    user: req.user.id,
+    exp: req.params.expId,
+  };
+
+  if (!data.exp) {
+    throw new AppError(
+      'please enter expId in params in this format => /api/v1/exps/:expId/disslikes',
+      400
+    );
+  }
+
+  const doc = await DissLike.create(data);
 
   if (!doc) {
     throw new AppError('document is not created, something went wrong!', 400);
@@ -36,7 +47,33 @@ exports.createDissLike = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllDissLikes = handlerFactory.getAll(DissLike);
+exports.getAllDissLikes = catchAsync(async (req, res, next) => {
+  // this controller is for users to get all likes for one specific Exp (Not all likes in general)
+  // check if has user entered expId or not
+  const { expId } = req.params;
+
+  if (!expId) {
+    throw new AppError(
+      'please enter experience id in params in this format => /api/v1/exp/:expId/disslikes!',
+      400
+    );
+  }
+
+  const dissLikes = await DissLike.find({ exp: expId }).sort('-createdAt').populate({
+    path: 'user',
+    select: 'userName photo',
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: dissLikes.length,
+    message: 'diss likes belongs to experience with this id was found successfully!',
+    data: {
+      data: dissLikes,
+    },
+  });
+});
+
 exports.getDissLike = handlerFactory.getOne(DissLike, {
   path: 'user',
   select: 'usermName photo',

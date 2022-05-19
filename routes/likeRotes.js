@@ -2,11 +2,11 @@ const express = require('express');
 const likeController = require('../controllers/likeController');
 const authController = require('../controllers/authController');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router
   .route('/')
-  .get(authController.protect, authController.reStrictTo('admin'), likeController.getAllLikes)
+  .get(likeController.getAllLikes)
   .post(authController.protect, likeController.createLike);
 
 router
@@ -15,4 +15,5 @@ router
   .delete(authController.protect, authController.reStrictTo('admin'), likeController.deleteLike);
 
 router.route('/:id/deleteMyLike').delete(authController.protect, likeController.deleteMyLike);
+// {{URL}}/../exp/:expId/likes
 module.exports = router;
