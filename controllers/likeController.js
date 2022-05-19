@@ -7,6 +7,10 @@ exports.deleteMyLike = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const like = await Like.findOneAndDelete({ _id: id, user: req.user.id });
 
+  if (!like) {
+    throw new AppError('there is no like on this experience by you!', 404);
+  }
+
   res.status(204).json({
     status: 'success',
     message: 'your like is deleted successfully!',

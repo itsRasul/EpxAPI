@@ -55,14 +55,13 @@ likeSchema.pre(/^findOneAndDelete/, async function (next) {
   // query.clone() is the same pre query
   // if we wanted to execute pre the same query, use this method '.clone()'
   this.likeDoc = await this.clone();
-  if (!this.likeDoc) {
-    return next(new AppError('there is no like on this experience by you!', 404));
-  }
   next();
 });
 
 likeSchema.post(/^findOneAndDelete/, function () {
-  this.likeDoc.constructor.addOneLikeToTourInLikesQuantityField(this.likeDoc.exp, 'minus');
+  if (this.likeDoc) {
+    this.likeDoc.constructor.addOneLikeToTourInLikesQuantityField(this.likeDoc.exp, 'minus');
+  }
 });
 
 const Like = mongoose.model('Like', likeSchema);
