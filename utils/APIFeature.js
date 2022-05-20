@@ -23,6 +23,7 @@ class APIFeature {
 
     // queryStr like this: '{name: 'example', price: { $gt: 1000 }}'
     // it's ready to query
+    console.log(queryStr);
     this.query = this.query.find(JSON.parse(queryStr));
 
     return this;
@@ -74,6 +75,14 @@ class APIFeature {
       fields = '-__v';
     }
     this.query = this.query.select(fields);
+
+    return this;
+  }
+
+  populate(populateObj) {
+    if (populateObj) {
+      this.query = this.query.populate(populateObj);
+    }
 
     return this;
   }

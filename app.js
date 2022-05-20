@@ -6,6 +6,7 @@ const expRouter = require('./routes/expRoutes');
 const userRouter = require('./routes/userRoutes');
 const likeRouter = require('./routes/likeRotes');
 const dissLikeRouter = require('./routes/dissLikeRoutes');
+const categoryRouter = require('./routes/categoryRoutes');
 const errorController = require('./controllers/errorController');
 const AppError = require('./utils/AppError');
 
@@ -23,6 +24,7 @@ app.use('/api/v1/exps', expRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/likes', likeRouter);
 app.use('/api/v1/dissLikes', dissLikeRouter);
+app.use('/api/v1/categories', categoryRouter);
 
 // error 404 in case we didn't find any route
 app.all('*', (req, res, next) => {

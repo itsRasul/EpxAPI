@@ -69,6 +69,14 @@ expSchema.pre(/^findOne/, function (next) {
   next();
 });
 
+// expSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: 'category',
+//     select: 'name',
+//   });
+//   next();
+// });
+
 const Exp = mongoose.model('Exp', expSchema);
 
 module.exports = Exp;
