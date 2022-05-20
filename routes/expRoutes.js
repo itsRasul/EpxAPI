@@ -3,6 +3,7 @@ const expController = require('../controllers/expControllers');
 const authController = require('../controllers/authController');
 const likeRouter = require('./likeRotes');
 const dissLikeRouter = require('./dissLikeRoutes');
+const markRouter = require('./markRoutes');
 
 const router = express.Router();
 
@@ -22,4 +23,5 @@ router.route('/:id/updateMyExp').patch(authController.protect, expController.upd
 
 router.use('/:expId/likes', likeRouter);
 router.use('/:expId/disslikes', dissLikeRouter);
+router.use('/:expId/marks', markRouter);
 module.exports = router;

@@ -30,6 +30,7 @@ class APIFeature {
   }
   sort() {
     let sortBy;
+    console.log('this.queryString', this.queryString);
     if (this.queryString.sort) {
       // now sort is: price,createdAt
       // we wanna turn it to: price createdAt
