@@ -6,7 +6,7 @@ const router = express.Router({ mergeParams: true });
 
 router
   .route('/')
-  .get(likeController.getAllLikes)
+  .get(authController.protect, likeController.getAllLikes)
   .post(authController.protect, likeController.createLike);
 
 router
