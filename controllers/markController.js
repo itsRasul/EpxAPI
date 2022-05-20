@@ -66,10 +66,6 @@ exports.deleteMyMark = catchAsync(async (req, res, next) => {
 
   const mark = await Mark.findOneAndDelete({ user: userId, _id: markId });
 
-  if (!mark) {
-    throw new AppError('mark with this id is not exist or is not created by you!', 404);
-  }
-
   res.status(204).json({
     status: 'success',
     message: 'mark has been deleted successfully!',
