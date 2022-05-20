@@ -5,7 +5,13 @@ const AppError = require('../utils/AppError');
 
 exports.getAllExp = catchAsync(async (req, res, next) => {
   // get all exps
-  const feature = new APIFeature(Exp.find(), req.query).filter().sort().paginate().limit().fields();
+  const feature = new APIFeature(Exp.find(), req.query)
+    .populate({ path: 'category' })
+    .filter()
+    .sort()
+    .paginate()
+    .limit()
+    .fields();
 
   const exps = await feature.query;
 
