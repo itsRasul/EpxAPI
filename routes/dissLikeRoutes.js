@@ -6,7 +6,7 @@ const router = express.Router({ mergeParams: true });
 
 router
   .route('/')
-  .get(dissLikeController.getAllDissLikes)
+  .get(authController.protect, dissLikeController.getAllDissLikes)
   .post(authController.protect, dissLikeController.createDissLike);
 
 router

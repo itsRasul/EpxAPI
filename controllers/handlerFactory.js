@@ -4,10 +4,9 @@ const APIFeature = require('../utils/APIFeature');
 
 exports.getOne = (Model, ...populateOption) =>
   catchAsync(async (req, res, next) => {
-    console.log(populateOption);
     let query = Model.findById(req.params.id);
 
-    if (populateOption) {
+    if (populateOption.length) {
       query = query.populate(populateOption);
     }
 
@@ -23,7 +22,7 @@ exports.getOne = (Model, ...populateOption) =>
     });
   });
 
-exports.getAll = Model =>
+exports.getAll = (Model, ...populateOption) =>
   catchAsync(async (req, res, next) => {
     const feature = new APIFeature(Model.find(), req.query)
       .filter()
@@ -31,6 +30,10 @@ exports.getAll = Model =>
       .paginate()
       .limit()
       .fields();
+
+    if (populateOption.length) {
+      feature.query = feature.query.populate(populateOption);
+    }
 
     const docs = await feature.query;
 

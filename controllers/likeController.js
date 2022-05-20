@@ -2,6 +2,7 @@ const Like = require('../models/likeModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const handlerFactory = require('./handlerFactory');
+const APIFeature = require('../utils/APIFeature');
 
 exports.deleteMyLike = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -49,30 +50,52 @@ exports.createLike = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllLikes = catchAsync(async (req, res, next) => {
-  // this controller is for users to get all likes for one specific Exp (Not all likes in general)
+  // this controller is for users to get all likes for one specific Exp AND for admin to recieive all likes in general
   // check if has user entered expId or not
   const { expId } = req.params;
 
-  if (!expId) {
-    throw new AppError(
-      'please enter experience id in params in this format => /api/v1/exp/:expId/likes!',
-      400
-    );
+  if (expId) {
+    // user comes from this route => api/v1/exp/:expId/likes
+    // so wants to receive all likes for a specefic exp
+    const likes = await Like.find({ exp: expId }).sort('-createdAt').populate({
+      path: 'user',
+      select: 'userName photo',
+    });
+
+    res.status(200).json({
+      status: 'success',
+      results: likes.length,
+      message: 'likes belongs to experience with this id was found successfully!',
+      data: {
+        data: likes,
+      },
+    });
+  } else {
+    // user comes from this route => api/v1/likes
+    // so wants to get all likes in general
+    // becuase these data can be sensitive, we check user must be admin to recieve these dadta
+    if (req.user.role !== 'admin') {
+      throw new AppError('you are forbbiden to access this route!', 403);
+    }
+
+    const feature = new APIFeature(Like.find(), req.query)
+      .filter()
+      .sort()
+      .paginate()
+      .limit()
+      .fields();
+
+    const likes = await feature.query;
+
+    res.status(200).json({
+      status: 'success',
+      results: likes.length,
+      message: 'all likes were found successfully!',
+      data: {
+        data: likes,
+      },
+    });
   }
-
-  const likes = await Like.find({ exp: expId }).sort('-createdAt').populate({
-    path: 'user',
-    select: 'userName photo',
-  });
-
-  res.status(200).json({
-    status: 'success',
-    results: likes.length,
-    message: 'likes belongs to experience with this id was found successfully!',
-    data: {
-      data: likes,
-    },
-  });
 });
 
 exports.getLike = handlerFactory.getOne(Like, { path: 'user', select: 'userName photo' });
