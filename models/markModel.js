@@ -20,7 +20,7 @@ const markSchema = new mongoose.Schema({
 
 markSchema.statics.addOneMarkQuantity = async (expId, operation) => {
   if (operation == 'plus') {
-    const exp = await Exp.findByIdAndUpdate(
+    await Exp.findByIdAndUpdate(
       expId,
       {
         $inc: { marksQuantity: 1 },
