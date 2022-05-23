@@ -9,7 +9,7 @@ const likeCommentSchema = new mongoose.Schema({
   },
   user: {
     type: mongoose.Types.ObjectId,
-    ref: 'user',
+    ref: 'User',
   },
   createdAt: {
     type: Date,
@@ -43,7 +43,7 @@ likeCommentSchema.statics.increaseLikesQuantity = async function (commentId, ope
 };
 
 likeCommentSchema.pre('save', async function (next) {
-  await likeCommentSchema.increaseLikesQuantity(this.comment, 'plus');
+  await this.constructor.increaseLikesQuantity(this.comment, 'plus');
   next();
 });
 

@@ -1,5 +1,5 @@
 const express = require('express');
-const likeCommentController = require('../controllers/likeCommentModel');
+const likeCommentController = require('../controllers/likeCommentController');
 const authController = require('../controllers/authController');
 
 const router = express.Router({ mergeParams: true });

@@ -9,10 +9,6 @@ exports.deleteMyLikeComment = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const like = await LikeComment.findOneAndDelete({ _id: id, user: req.user.id });
 
-  if (!like) {
-    throw new AppError('there is no like on this comment by you!', 404);
-  }
-
   res.status(204).json({
     status: 'success',
     message: 'your like is deleted successfully!',
@@ -28,7 +24,7 @@ exports.createLikeComment = catchAsync(async (req, res, next) => {
     comment: req.params.commentId,
   };
 
-  if (!data.commet) {
+  if (!data.comment) {
     throw new AppError(
       'please enter commentId in params in this format => /api/v1/comments/:commentId/likeComments',
       400
@@ -99,9 +95,21 @@ exports.getAllLikeComments = catchAsync(async (req, res, next) => {
   }
 });
 
+exports.deleteLikeComment = catchAsync(async (req, res, next) => {
+  // this controller is just for admin
+  const { id } = req.params;
+  const doc = await LikeComment.findByIdAndDelete(id);
+
+  res.status(204).json({
+    status: 'success',
+    message: 'document is removed successfully!',
+    data: {
+      data: doc,
+    },
+  });
+});
+
 exports.getLikeComment = handlerFactory.getOne(likeComment, {
   path: 'user',
   select: 'userName photo',
 });
-// below controller is just for admin
-exports.deleteLikeComment = handlerFactory.deleteOne(likeComment);
