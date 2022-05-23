@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema({
       message: 'email is invalid!',
     },
   },
+  bio: {
+    type: String,
+    default: '',
+    maxlength: [280, 'bio must be less than 280 charecter!'],
+  },
   password: {
     type: String,
     required: [true, 'please enter your password'],

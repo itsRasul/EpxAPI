@@ -1,6 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
+const followRouter = require('./followRoutes');
 
 const router = express();
 
@@ -42,4 +43,5 @@ router
   .patch(authController.protect, authController.reStrictTo('admin'), userController.updateUser)
   .delete(authController.protect, authController.reStrictTo('admin'), userController.deleteUser);
 
+router.use('/:userId/follows', followRouter);
 module.exports = router;
