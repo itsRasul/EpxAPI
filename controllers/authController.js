@@ -235,7 +235,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.deleteMe = catchAsync(async (req, res, next) => {
   const { id } = req.user;
-  console.log(id);
   const removedUser = await User.findOneAndDelete({ _id: id });
 
   if (!removedUser) {

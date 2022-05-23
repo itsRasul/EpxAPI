@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const operation = require('sharp/lib/operation');
 const AppError = require('../utils/AppError');
 const Exp = require('./expModel');
 

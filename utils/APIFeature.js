@@ -23,14 +23,12 @@ class APIFeature {
 
     // queryStr like this: '{name: 'example', price: { $gt: 1000 }}'
     // it's ready to query
-    console.log(queryStr);
     this.query = this.query.find(JSON.parse(queryStr));
 
     return this;
   }
   sort() {
     let sortBy;
-    console.log('this.queryString', this.queryString);
     if (this.queryString.sort) {
       // now sort is: price,createdAt
       // we wanna turn it to: price createdAt

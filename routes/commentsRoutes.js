@@ -1,6 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const commentController = require('../controllers/commentController');
+const likeCommentRouter = require('./likeCommentRoutes');
 
 const router = express.Router({ mergeParams: true });
 
@@ -31,4 +32,6 @@ router
     commentController.deleteComment
   );
 
+router.route('/:id/replies').get(authController.protect, commentController.getAllReplies);
+router.use('/:commentId/likeComments', likeCommentRouter);
 module.exports = router;

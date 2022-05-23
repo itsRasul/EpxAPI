@@ -81,11 +81,7 @@ exports.getAllComments = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteMyComment = catchAsync(async (req, res, next) => {
-  const comment = await Comment.findOneAndDelete({ id: req.params.id, user: req.user.id });
-
-  if (!comment) {
-    throw new AppError('comment is not exist, or is not created by you!', 404);
-  }
+  const comment = await Comment.findOneAndDelete({ _id: req.params.id, user: req.user.id });
 
   res.status(204).json({
     status: 'success',
@@ -114,6 +110,22 @@ exports.updateMyComment = catchAsync(async (req, res, next) => {
     message: 'your comment has been updated successfully!',
     data: {
       data: comment,
+    },
+  });
+});
+
+exports.getAllReplies = catchAsync(async (req, res, next) => {
+  // user send a get req to => api/v1/comments/:id/replies
+  // v1: get back all level 1 replies to user
+  // v2: get back all replies to user
+  // **** v1 ****
+  const replies = await Comment.find({ parentComment: req.params.id }).sort('createdAt');
+  res.status(200).json({
+    status: 'success',
+    results: replies.length,
+    message: 'all replies are found successfully!',
+    data: {
+      data: replies,
     },
   });
 });

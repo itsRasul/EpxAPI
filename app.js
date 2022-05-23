@@ -9,6 +9,7 @@ const dissLikeRouter = require('./routes/dissLikeRoutes');
 const categoryRouter = require('./routes/categoryRoutes');
 const markRouter = require('./routes/markRoutes');
 const commentRouter = require('./routes/commentsRoutes');
+const likeCommentRouter = require('./routes/likeCommentRoutes');
 const errorController = require('./controllers/errorController');
 const AppError = require('./utils/AppError');
 
@@ -29,6 +30,7 @@ app.use('/api/v1/dissLikes', dissLikeRouter);
 app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/marks', markRouter);
 app.use('/api/v1/comments', commentRouter);
+app.use('/api/v1/likeComments', likeCommentRouter);
 
 // error 404 in case we didn't find any route
 app.all('*', (req, res, next) => {
