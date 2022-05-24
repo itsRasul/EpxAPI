@@ -3,6 +3,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const XSS = require('xss-clean');
 const expRouter = require('./routes/expRoutes');
 const userRouter = require('./routes/userRoutes');
 const likeRouter = require('./routes/likeRotes');
@@ -25,12 +28,19 @@ const ratLimiterApi = rateLimit({
 });
 app.use('/', ratLimiterApi);
 
+// to avoiding XSS attacks, sets some security http headers
+app.use(helmet());
 // to parse forms
 app.use(bodyParser.urlencoded({ extended: true }));
 // to parse json body
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10kb' }));
 // to parse cookies comes from client
 app.use(cookieParser());
+// providing NoSQL query injection
+app.use(mongoSanitize());
+// sanitize xss attacks
+app.use(XSS());
+
 // morgan middleware: to log requests
 app.use(morgan('dev'));
 
