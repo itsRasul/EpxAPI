@@ -1,13 +1,20 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const followRouter = require('./followRoutes');
 
 const router = express();
 
-router.route('/signup').post(authController.signup);
-router.route('/login').post(authController.login);
-router.route('/logout').post(authController.protect, authController.logout);
+const rateLimiterApi = rateLimit({
+  max: 20,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests, please try again!',
+});
+
+router.route('/signup').post(rateLimiterApi, authController.signup);
+router.route('/login').post(rateLimiterApi, authController.login);
+router.route('/logout').post(rateLimiterApi, authController.protect, authController.logout);
 router
   .route('/updateMe')
   .patch(

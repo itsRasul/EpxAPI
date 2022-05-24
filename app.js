@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const expRouter = require('./routes/expRoutes');
 const userRouter = require('./routes/userRoutes');
 const likeRouter = require('./routes/likeRotes');
@@ -15,6 +16,15 @@ const errorController = require('./controllers/errorController');
 const AppError = require('./utils/AppError');
 
 const app = express();
+
+// rate limiter
+const ratLimiterApi = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many request! please try again!',
+});
+app.use('/', ratLimiterApi);
+
 // to parse forms
 app.use(bodyParser.urlencoded({ extended: true }));
 // to parse json body
