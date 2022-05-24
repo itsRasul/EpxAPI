@@ -48,7 +48,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   }
 
-  const filteredFields = filterField(req.body, 'name', 'email', 'userName');
+  const filteredFields = filterField(req.body, 'name', 'email', 'userName', 'bio');
   if (req.file) filteredFields.photo = req.file.fileName;
   // top code and bottom code are doing exact same thing
   // const data = {

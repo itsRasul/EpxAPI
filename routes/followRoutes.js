@@ -26,6 +26,6 @@ router
 router.route('/followers').get(followController.getFollowers);
 router.route('/followings').get(followController.getFollowings);
 router
-  .route('/getExpsOfMyFollowers')
-  .get(authController.protect, followController.getExpsOfMyFollowers);
+  .route('/getExpsOfMyFollowings')
+  .get(authController.protect, followController.getExpsOfMyFollowings);
 module.exports = router;

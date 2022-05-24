@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
-const email = require('../utils/email');
+const Email = require('../utils/email');
 const crypto = require('crypto');
 
 const createAndSendToken = (user, res, statusCode, message) => {
@@ -51,6 +51,8 @@ exports.signup = catchAsync(async (req, res, next) => {
   };
 
   const newUser = await User.create(data);
+  //send welcome
+  await new Email(newUser).sendWelcome();
 
   createAndSendToken(newUser, res, 201, 'you are signed up successfully!');
 });
@@ -187,13 +189,15 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   const resetPasswordToken = user.createResetPasswordToken();
   await user.save({ validateBeforeSave: false });
-  const options = {
-    to: user.email,
-    subject: 'reset password (valid for 10 minutes)',
-    text: `please send a patch request to http://127.0.0.1:3000/api/v1/users/resetPassword/${resetPasswordToken}`,
-  };
+  // const options = {
+  //   to: user.email,
+  //   subject: 'reset password (valid for 10 minutes)',
+  //   text: `please send a patch request to http://127.0.0.1:3000/api/v1/users/resetPassword/${resetPasswordToken}`,
+  // };
 
-  await email(options);
+  // await email(options);
+
+  await new Email(user).sendResetToken(resetPasswordToken);
 
   res.status(200).json({
     status: 'success',

@@ -129,7 +129,7 @@ exports.getFollowings = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getExpsOfMyFollowers = catchAsync(async (req, res, next) => {
+exports.getExpsOfMyFollowings = catchAsync(async (req, res, next) => {
   // 1) find my followings
   // 2) find exps which their user field is in my followings
   const { id: follower } = req.user;
