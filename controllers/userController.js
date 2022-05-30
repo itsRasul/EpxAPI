@@ -1,7 +1,9 @@
+const mongoose = require('mongoose');
 const multer = require('multer');
 const sharp = require('sharp');
 const APIFeature = require('../utils/APIFeature');
 const User = require('../models/userModel');
+const Exp = require('../models/expModel');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 
@@ -250,6 +252,87 @@ exports.getMe = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       user,
+    },
+  });
+});
+
+// get my stats
+exports.getMyExpsStats = catchAsync(async (req, res, next) => {
+  const { id } = req.user;
+  console.log(id);
+
+  const myAvgViews = await Exp.aggregate([
+    {
+      // below code doesn't work, becuase mongoose doesn't cast id, we should do this manully
+      $match: { user: new mongoose.Types.ObjectId(id) },
+    },
+    {
+      $group: {
+        _id: null,
+        totalExperiences: { $sum: 1 },
+        totalViews: { $sum: '$views' },
+        avgViews: { $avg: '$views' },
+        totlaLikes: { $sum: '$likesQuantity' },
+        avgLikes: { $avg: '$likesQuantity' },
+        totalDissLikes: { $sum: '$dissLikesQuantity' },
+        avgDissLikes: { $avg: '$dissLikeQuantity' },
+        totalMarks: { $sum: '$marksQuantity' },
+        avgMarks: { $avg: '$marksQuantity' },
+      },
+    },
+    {
+      $project: { _id: 0 },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      data: myAvgViews,
+    },
+  });
+});
+
+// get my monthly stats
+
+// getbest users depends on their total like on their exps
+
+exports.getTopUsersMonthly = catchAsync(async (req, res, next) => {
+  const { limit } = req.query;
+
+  const topUsers = await Exp.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: new Date(Date.now() - 31536000000) },
+      },
+    },
+    {
+      $sort: { likesQuantity: -1 },
+    },
+    {
+      $limit: limit ? limit * 1 : 10,
+    },
+    {
+      $group: {
+        _id: { $month: '$createdAt' },
+        experiences: { $push: '$_id' },
+        users: { $push: '$user' },
+        gotLikesNumber: { $push: { $sum: '$likesQuantity' } },
+      },
+    },
+    {
+      $addFields: { month: '$_id' },
+    },
+    {
+      $project: { _id: 0 },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    results: topUsers.length,
+    data: {
+      data: topUsers,
     },
   });
 });
