@@ -94,6 +94,10 @@ module.exports = class Email {
 //     // how to do:
 //     // go to gmail account click on profile => manage your account => security
 //     // Signing in to Google => click on 2-steps verification and app password (then find lesssecure app option and turn it on)
+// READ ALSO:
+// go to gmail account click on profile => manage your account => security => Signing in to Google => app passwords => add a device which
+// gonna login in and send emails(windows computer) => copy the password that is showed => put it to "pass" property in code (nodemailer.createTransport({service: 'gmail', auth: {
+// pass: 'HERE', user: 'example@gmail.com'}))
 
 //     const transporter = nodemailer.createTransport({
 //       service: 'gmail',
